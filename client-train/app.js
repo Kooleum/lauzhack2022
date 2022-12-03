@@ -2,7 +2,7 @@ const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
 const msg_erreur = document.getElementById("msg_erreur");
-
+const msg_status = document.getElementById("msg_status");
 
 const pose_landmaks_to_get = [0, 11, 12, 13, 14, 15, 16, 24, 23];
 
@@ -13,7 +13,7 @@ const take_photo = false;
 let total_data = [];
 let savedPoints = [];
 
-let ellapsed_time = 0;
+let ellapsed_time, total_time = 0;
 let start, end = 0;
 let record = false;
 
@@ -75,18 +75,18 @@ function onResults(results) {
         results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     canvasCtx.globalCompositeOperation = 'source-over';
-    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
-                    {color: '#00FF00', lineWidth: 4});
-    drawLandmarks(canvasCtx, results.poseLandmarks,
-                    {color: '#FF0000', lineWidth: 2});
-    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS,
-                    {color: '#CC0000', lineWidth: 5});
-    drawLandmarks(canvasCtx, results.leftHandLandmarks,
-                    {color: '#00FF00', lineWidth: 2});
-    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS,
-                    {color: '#00CC00', lineWidth: 5});
-    drawLandmarks(canvasCtx, results.rightHandLandmarks,
-                    {color: '#FF0000', lineWidth: 2});
+    // drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
+    //                 {color: '#00FF00', lineWidth: 4});
+    // drawLandmarks(canvasCtx, results.poseLandmarks,
+    //                 {color: '#FF0000', lineWidth: 2});
+    // drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS,
+    //                 {color: '#CC0000', lineWidth: 5});
+    // drawLandmarks(canvasCtx, results.leftHandLandmarks,
+    //                 {color: '#00FF00', lineWidth: 2});
+    // drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS,
+    //                 {color: '#00CC00', lineWidth: 5});
+    // drawLandmarks(canvasCtx, results.rightHandLandmarks,
+    //                 {color: '#FF0000', lineWidth: 2});
 
     // console.log(results.poseLandmarks);
 
@@ -96,6 +96,7 @@ function onResults(results) {
         msg_erreur.hidden = false;
         return;
     }
+    
     //Getting the values for upbody
     let values_landmark = [];
     let values_landmark_to_norm = [];
@@ -155,6 +156,7 @@ function onResults(results) {
 
     let normalized_leftHandLandmarks = normalizeXY(leftHandLandmarks);
 
+    total_data = [];
     
     normalized_rightHandLandmarks.forEach((landmark) => {
         total_data.push(landmark);
@@ -168,10 +170,12 @@ function onResults(results) {
     values_landmark_to_norm.forEach((landmark) => {
         total_data.push(landmark);
     });
-
-    msg_erreur.innerHTML = "Veuillez vous placer devant la caméra";
+    
+    if (total_data.length < 52) {
+        return;
+    }
+    
     msg_erreur.hidden = true;
-
     handle_timer();
     canvasCtx.restore();
 }
@@ -204,29 +208,21 @@ camera.start();
 
 
 function handle_timer(){
-
     if(record == true){
+
         end = new Date();
         let time = end - start;
-        ellapsed_time += time;
-        if(time >= 100){
+        ellapsed_time += time - ellapsed_time;
+
+        if(ellapsed_time >= 10){
             savedPoints.push(total_data);
-            ellapsed_time = 0;
         }
-        console.log("time: " + ellapsed_time);
-        ellapsed_time += 100;
-        if(ellapsed_time >= 3000){
+        if(savedPoints.length >= 30){
             record = false;
             console.log("stop");
             console.log(savedPoints);
         }
-
-
-
     }
-
-
-
 }
 
 document.getElementById("btn_record").addEventListener("click", function(){
