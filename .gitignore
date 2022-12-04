@@ -2,3 +2,4 @@
 back/.venv/**
 __pycache__/**
 back/__pycache__/**
+client-train/node_modules/**
