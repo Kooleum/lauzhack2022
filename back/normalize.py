@@ -1,6 +1,7 @@
+#: list(list(float))  -> tuple(list(float), list(float))
 def getLimits(bodyPoints):
-    topLeft = [1, 1]
-    bottomRight = [0, 0]
+    topLeft = [1.0, 1.0]
+    bottomRight = [0.0, 0.0]
     for i in range(len(bodyPoints)):
         topLeft[0] = bodyPoints[i][0] if bodyPoints[i][0] < topLeft[0] else topLeft[0]
         topLeft[1] = bodyPoints[i][1] if bodyPoints[i][1] < topLeft[1] else topLeft[1]
@@ -9,8 +10,9 @@ def getLimits(bodyPoints):
 
     return (topLeft, bottomRight)
 
-
+#: list(list(float))   -> list(list(float))
 def normalizeXY(bodyPoints):
+    #:list(list(float))
     normPoints = []
     
     limits = getLimits(bodyPoints)
