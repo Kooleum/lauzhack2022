@@ -1,0 +1,28 @@
+{
+    "solution": {
+        "provisionSucceeded": true,
+        "teamsAppTenantId": "c788fcf7-1e7b-411a-b04f-f750ce4d1b23",
+        "subscriptionId": "9845b80e-6bbf-4c31-82cf-aa89fcde31de",
+        "subscriptionName": "Azure for Students",
+        "tenantId": "a372f724-c0b2-4ea0-abfb-0eb8c6f84e40",
+        "needCreateResourceGroup": false,
+        "resourceGroupName": "LauzHack-SignTranslate",
+        "location": "West Europe",
+        "resourceNameSuffix": "81ba7d"
+    },
+    "fx-resource-appstudio": {
+        "tenantId": "c788fcf7-1e7b-411a-b04f-f750ce4d1b23",
+        "teamsAppId": "0449d58d-da4d-45be-817c-2ca0e113ca2d"
+    },
+    "fx-resource-frontend-hosting": {
+        "indexPath": "/index.html#",
+        "domain": "inmeetingdev81ba7dtab.z6.web.core.windows.net",
+        "endpoint": "https://inmeetingdev81ba7dtab.z6.web.core.windows.net",
+        "storageResourceId": "/subscriptions/9845b80e-6bbf-4c31-82cf-aa89fcde31de/resourceGroups/LauzHack-SignTranslate/providers/Microsoft.Storage/storageAccounts/inmeetingdev81ba7dtab"
+    },
+    "fx-resource-identity": {
+        "identityName": "inmeetingdev81ba7d",
+        "identityResourceId": "/subscriptions/9845b80e-6bbf-4c31-82cf-aa89fcde31de/resourceGroups/LauzHack-SignTranslate/providers/Microsoft.ManagedIdentity/userAssignedIdentities/inmeetingdev81ba7d",
+        "identityClientId": "7ce6d77a-8b44-468e-96d1-7dea33a49d29"
+    }
+}
