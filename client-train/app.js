@@ -6,9 +6,9 @@ const msg_status = document.getElementById("msg_status");
 
 const pose_landmaks_to_get = [0, 11, 12, 13, 14, 15, 16, 24, 23];
 
-const pose_landmarks_to_keep = [13, 14, 16, 15, 0];
+let ok_to_push = false;
 
-const take_photo = false;
+
 
 let total_data = [];
 let savedPoints = [];
@@ -59,8 +59,9 @@ function normalizeXY(points){
 }
 
 function onResults(results) {
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    handle_timer();
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 //   canvasCtx.drawImage(results.segmentationMask, 0, 0,
 //                       canvasElement.width, canvasElement.height);
 
@@ -75,23 +76,23 @@ function onResults(results) {
         results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     canvasCtx.globalCompositeOperation = 'source-over';
-    // drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
-    //                 {color: '#00FF00', lineWidth: 4});
-    // drawLandmarks(canvasCtx, results.poseLandmarks,
-    //                 {color: '#FF0000', lineWidth: 2});
-    // drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS,
-    //                 {color: '#CC0000', lineWidth: 5});
-    // drawLandmarks(canvasCtx, results.leftHandLandmarks,
-    //                 {color: '#00FF00', lineWidth: 2});
-    // drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS,
-    //                 {color: '#00CC00', lineWidth: 5});
-    // drawLandmarks(canvasCtx, results.rightHandLandmarks,
-    //                 {color: '#FF0000', lineWidth: 2});
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
+                    {color: '#00FF00', lineWidth: 4});
+    drawLandmarks(canvasCtx, results.poseLandmarks,
+                    {color: '#FF0000', lineWidth: 2});
+    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS,
+                    {color: '#CC0000', lineWidth: 5});
+    drawLandmarks(canvasCtx, results.leftHandLandmarks,
+                    {color: '#00FF00', lineWidth: 2});
+    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS,
+                    {color: '#00CC00', lineWidth: 5});
+    drawLandmarks(canvasCtx, results.rightHandLandmarks,
+                    {color: '#FF0000', lineWidth: 2});
 
     // console.log(results.poseLandmarks);
 
-
-    if (results.poseLandmarks == null || results.rightHandLandmarks == null || results.leftHandLandmarks == null) {
+    // console.log(results.poseLandmarks);
+    if (results.poseLandmarks == null) {
         msg_erreur.innerHTML = "Veuillez vous placer devant la caméra";
         msg_erreur.hidden = false;
         return;
@@ -99,84 +100,94 @@ function onResults(results) {
     
     //Getting the values for upbody
     let values_landmark = [];
-    let values_landmark_to_norm = [];
     for(let i = 0; i < pose_landmaks_to_get.length; i++){
+
+        
         let visibility_landmark = results.poseLandmarks[pose_landmaks_to_get[i]].visibility;
         let x_landmark = results.poseLandmarks[pose_landmaks_to_get[i]].x;
         let y_landmark = results.poseLandmarks[pose_landmaks_to_get[i]].y;
         let z_landmark = results.poseLandmarks[pose_landmaks_to_get[i]].z;
-        
         if (visibility_landmark > 0.5) {
+            // msg_erreur.innerHTML = "Veuillez vous placer";
             values_landmark.push([x_landmark, y_landmark, z_landmark]);
-        }
-
-        for (let j = 0; j < pose_landmarks_to_keep.length; j++) {
-            if (pose_landmaks_to_get[i] == pose_landmarks_to_keep[j]) {
-                values_landmark_to_norm.push([x_landmark, y_landmark, z_landmark]);
-            }
+            
         }
     }
 
     if (values_landmark.length < pose_landmaks_to_get.length) {
         msg_erreur.innerHTML = "Veuillez vous placer devant la caméra";
         msg_erreur.hidden = false;
+        ok_to_push = false;
         return;
     }
+    console.log(values_landmark);
+    total_data.push(values_landmark);
+    msg_erreur.hidden = true;
 
-    let norm_values_landmark = normalizeXY(values_landmark_to_norm);
+    // let norm_values_landmark = normalizeXY(values_landmark_to_norm);
     // console.log(results.rightHandLandmarks);
 
     
-    let rightHandLandmarks = [];
-    if (results.rightHandLandmarks != null) {
-        for(let i = 0; i < results.rightHandLandmarks.length; i++){
+    // let rightHandLandmarks = [];
+    // if (results.rightHandLandmarks != null) {
+    //     for(let i = 0; i < results.rightHandLandmarks.length; i++){
 
-            let x_landmark = results.rightHandLandmarks[i].x;
-            let y_landmark = results.rightHandLandmarks[i].y;
-            let z_landmark = results.rightHandLandmarks[i].z;
+    //         let x_landmark = results.rightHandLandmarks[i].x;
+    //         let y_landmark = results.rightHandLandmarks[i].y;
+    //         let z_landmark = results.rightHandLandmarks[i].z;
             
-            rightHandLandmarks.push([x_landmark, y_landmark, z_landmark]);
-        }
-    }
+    //         rightHandLandmarks.push([x_landmark, y_landmark, z_landmark]);
+    //     }
+    // } else {
+    //     for(let i = 0; i < 21; i++){
+    //         rightHandLandmarks.push([0, 0, 0]);
+    //     }
+    // }
     
-    let normalized_rightHandLandmarks = normalizeXY(rightHandLandmarks);
+    // let normalized_rightHandLandmarks = normalizeXY(rightHandLandmarks);
 
-    let leftHandLandmarks = [];
+    // let leftHandLandmarks = [];
 
-    if (results.leftHandLandmarks != null) {
-        for(let i = 0; i < results.leftHandLandmarks.length; i++){
+    // if (results.leftHandLandmarks != null) {
+    //     for(let i = 0; i < results.leftHandLandmarks.length; i++){
 
-            let x_landmark = results.leftHandLandmarks[i].x;
-            let y_landmark = results.leftHandLandmarks[i].y;
-            let z_landmark = results.leftHandLandmarks[i].z;
+    //         let x_landmark = results.leftHandLandmarks[i].x;
+    //         let y_landmark = results.leftHandLandmarks[i].y;
+    //         let z_landmark = results.leftHandLandmarks[i].z;
     
-            leftHandLandmarks.push([x_landmark, y_landmark, z_landmark]);
-        }
-    }
+    //         leftHandLandmarks.push([x_landmark, y_landmark, z_landmark]);
+    //     }
+    // } else {
+    //     for(let i = 0; i < 21; i++){
+    //         leftHandLandmarks.push([0, 0, 0]);
+    //     }
+    // }
 
-    let normalized_leftHandLandmarks = normalizeXY(leftHandLandmarks);
+    // let normalized_leftHandLandmarks = normalizeXY(leftHandLandmarks);
 
-    total_data = [];
+    // total_data = [];
     
-    normalized_rightHandLandmarks.forEach((landmark) => {
-        total_data.push(landmark);
-    });
-    normalized_leftHandLandmarks.forEach((landmark) => {
-        total_data.push(landmark);
-    });
-    norm_values_landmark.forEach((landmark) => {
-        total_data.push(landmark);
-    });
-    values_landmark_to_norm.forEach((landmark) => {
-        total_data.push(landmark);
-    });
+    // normalized_rightHandLandmarks.forEach((landmark) => {
+    //     total_data.push(landmark);
+    // });
+    // normalized_leftHandLandmarks.forEach((landmark) => {
+    //     total_data.push(landmark);
+    // });
+    // norm_values_landmark.forEach((landmark) => {
+    //     total_data.push(landmark);
+    // });
+    // values_landmark_to_norm.forEach((landmark) => {
+    //     total_data.push(landmark);
+    // });
     
-    if (total_data.length < 52) {
-        return;
-    }
+    // if (total_data.length < 52) {
+    //     ok_to_push = false;
+    //     return;
+    // }
     
-    msg_erreur.hidden = true;
-    handle_timer();
+    // ok_to_push = true;
+    // msg_erreur.hidden = true;
+    
     canvasCtx.restore();
 }
 
@@ -213,20 +224,46 @@ function handle_timer(){
         end = new Date();
         let time = end - start;
         ellapsed_time += time - ellapsed_time;
+        console.log("Ellapsed time:" + ellapsed_time + " Total time: " + time);  
 
-        if(ellapsed_time >= 10){
+        if(ellapsed_time >= 100 && time >= 1000){
             savedPoints.push(total_data);
+            ellapsed_time = 0;
         }
-        if(savedPoints.length >= 30){
+        if(time >= 3000){
             record = false;
             console.log("stop");
+            let to_fill = [];
+            for(let i = 0; i < 9; i++){
+                to_fill.push([0, 0, 0]);
+            }
+
+            while(savedPoints.length < 30){
+                savedPoints.push(to_fill);
+            }
+            
+            for (let i = 0; i < savedPoints.length; i++) {
+                for (let j = 0; j < savedPoints[i].length; j++) {
+                    for (let k = 0; k < savedPoints[i][j].length; k++) {
+                        if (isNaN(savedPoints[i][j][k])) {
+                            savedPoints[i][j][k] = 0;
+                        }
+                    }
+                }
+            }
+
+            const arr = JSON.stringify(savedPoints);
             console.log(savedPoints);
+            console.log(arr);
         }
+
+        msg_status.innerHTML = "Recording finished";
     }
 }
 
 document.getElementById("btn_record").addEventListener("click", function(){
     console.log("record");
+    msg_status.hidden = false;
     record = true;
     savedPoints = [];
     ellapsed_time = 0;
