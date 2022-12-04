@@ -44,7 +44,6 @@ def train():
             X_list.append(file_to_array(file_path))
             Y_list.append(i)
 
-    print(X_list)
     X = np.array(X_list).reshape(-1,NB_FRAME_PER_WORD, NB_BODY_POINTS, NB_DIMS)
     Y = np.array(Y_list)
 
@@ -54,12 +53,12 @@ def train():
             tf.keras.layers.Flatten(input_shape=(NB_FRAME_PER_WORD, NB_BODY_POINTS, NB_DIMS)),
             tf.keras.layers.Dense(64, activation='relu'),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(6, activation='softmax')
+            tf.keras.layers.Dense(len(words)*2, activation='softmax')
     ])
     print("-----------------------------------------------------------")
 
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    model.fit(X, Y, epochs=400)
+    model.fit(X, Y, epochs=500)
     return model
 
 
