@@ -11,6 +11,7 @@ import logging, os
 # os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import normalize
 import neuronalNet
+import requests
 
 import cv2
 import mediapipe as mp
@@ -35,7 +36,14 @@ model = neuronalNet.loadModel('savedModels/words.h5')
 guessPoints = [[[0, 0, 0] for i in range(11)] for j in range(50)]
 
 
+
 def detect():   
+    
+    current_state = ""
+    old_state = current_state
+
+    url = "http://localhost:30992/message"
+        
     global stop, initialized
     videoCap = cv2.VideoCapture(0)
 
@@ -131,10 +139,22 @@ def detect():
         if len(bodyPoints) == 11:     
             guessPoints.insert(0, bodyPoints)
             guessPoints.pop(-1)
-            if endMove >= 5 and startMovement:
+            if endMove >= 3 and startMovement:
                 res = neuronalNet.guess(model, guessPoints[-30:])
                 endMove = 0
                 print(res)
+                
+                if res[1] > 0.75 and res[0] != "start":
+                    current_state = res[0]
+                    if current_state != old_state:
+                        params = {
+                            "text": res[0]
+                        }
+                        r = requests.post(url, params=params)
+                    old_state = current_state
+                    
+                # res[1]
+                # diff start diff prev > 75
             # if (guessPoints[49][51] != [0.0, 0.0, 0.0] or endMove >= 5) and guessPoints[MIN_FRAMES][51] != [0.0, 0.0, 0.0]:
             #     print('END!!!!', endMove)
             #     word = 'hello'
